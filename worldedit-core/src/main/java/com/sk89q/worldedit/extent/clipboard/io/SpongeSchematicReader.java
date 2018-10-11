@@ -35,6 +35,7 @@ import com.sk89q.worldedit.BlockVector;
 import com.sk89q.worldedit.Vector;
 import com.sk89q.worldedit.WorldEdit;
 import com.sk89q.worldedit.WorldEditException;
+import com.sk89q.worldedit.entity.BaseEntity;
 import com.sk89q.worldedit.extension.input.InputParseException;
 import com.sk89q.worldedit.extension.input.ParserContext;
 import com.sk89q.worldedit.extent.clipboard.BlockArrayClipboard;
@@ -42,7 +43,10 @@ import com.sk89q.worldedit.extent.clipboard.Clipboard;
 import com.sk89q.worldedit.extent.clipboard.io.legacycompat.NBTCompatibilityHandler;
 import com.sk89q.worldedit.regions.CuboidRegion;
 import com.sk89q.worldedit.regions.Region;
+import com.sk89q.worldedit.util.Location;
 import com.sk89q.worldedit.world.block.BlockState;
+import com.sk89q.worldedit.world.entity.EntityTypes;
+import com.sk89q.worldedit.world.storage.NBTConversions;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -217,6 +221,30 @@ public class SpongeSchematicReader extends NBTSchematicReader {
             }
 
             index++;
+        }
+        
+
+        // ====================================================================
+        // Entities
+        // ====================================================================
+
+        try {
+            List<Tag> entityTags = requireTag(schematic, "OldEntities", ListTag.class).getValue();
+
+            for (Tag tag : entityTags) {
+                if (tag instanceof CompoundTag) {
+                    CompoundTag compound = (CompoundTag) tag;
+                    String id = compound.getString("id");
+                    Location location = NBTConversions.toLocation(clipboard, compound.getListTag("Pos"), compound.getListTag("Rotation"));
+
+                    if (!id.isEmpty()) {
+                        BaseEntity state = new BaseEntity(EntityTypes.get(id), compound);
+                        clipboard.createEntity(location, state);
+                    }
+                }
+            }
+        } catch (IOException ignored) { // No entities? No problem
+            ignored.printStackTrace();
         }
 
         return clipboard;

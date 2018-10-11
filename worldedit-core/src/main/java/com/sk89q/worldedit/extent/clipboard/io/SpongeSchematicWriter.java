@@ -23,6 +23,8 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.sk89q.jnbt.ByteArrayTag;
 import com.sk89q.jnbt.CompoundTag;
+import com.sk89q.jnbt.DoubleTag;
+import com.sk89q.jnbt.FloatTag;
 import com.sk89q.jnbt.IntArrayTag;
 import com.sk89q.jnbt.IntTag;
 import com.sk89q.jnbt.ListTag;
@@ -32,9 +34,12 @@ import com.sk89q.jnbt.StringTag;
 import com.sk89q.jnbt.Tag;
 import com.sk89q.worldedit.BlockVector;
 import com.sk89q.worldedit.Vector;
+import com.sk89q.worldedit.entity.BaseEntity;
+import com.sk89q.worldedit.entity.Entity;
 import com.sk89q.worldedit.world.block.BaseBlock;
 import com.sk89q.worldedit.extent.clipboard.Clipboard;
 import com.sk89q.worldedit.regions.Region;
+import com.sk89q.worldedit.util.Location;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -180,7 +185,51 @@ public class SpongeSchematicWriter implements ClipboardWriter {
         schematic.put("BlockData", new ByteArrayTag(buffer.toByteArray()));
         schematic.put("TileEntities", new ListTag(CompoundTag.class, tileEntities));
 
+        // ====================================================================
+        // Entities
+        // ====================================================================
+
+        List<Tag> entities = new ArrayList<Tag>();
+        for (Entity entity : clipboard.getEntities()) {
+            BaseEntity state = entity.getState();
+
+            if (state != null) {
+                Map<String, Tag> values = new HashMap<String, Tag>();
+
+                // Put NBT provided data
+                CompoundTag rawTag = state.getNbtData();
+                if (rawTag != null) {
+                    values.putAll(rawTag.getValue());
+                }
+
+                // Store our location data, overwriting any
+                values.put("id", new StringTag(state.getType().getId()));
+                values.put("Pos", writeVector(entity.getLocation().toVector(), "Pos"));
+                values.put("Rotation", writeRotation(entity.getLocation(), "Rotation"));
+
+                CompoundTag entityTag = new CompoundTag(values);
+                entities.add(entityTag);
+            }
+        }
+
+        schematic.put("OldEntities", new ListTag(CompoundTag.class, entities));
+        
         return schematic;
+    }
+
+    private Tag writeVector(Vector vector, String name) {
+        List<DoubleTag> list = new ArrayList<DoubleTag>();
+        list.add(new DoubleTag(vector.getX()));
+        list.add(new DoubleTag(vector.getY()));
+        list.add(new DoubleTag(vector.getZ()));
+        return new ListTag(DoubleTag.class, list);
+    }
+
+    private Tag writeRotation(Location location, String name) {
+        List<FloatTag> list = new ArrayList<FloatTag>();
+        list.add(new FloatTag(location.getYaw()));
+        list.add(new FloatTag(location.getPitch()));
+        return new ListTag(FloatTag.class, list);
     }
 
     @Override
