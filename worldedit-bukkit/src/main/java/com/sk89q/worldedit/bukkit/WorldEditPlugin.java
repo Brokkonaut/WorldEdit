@@ -104,9 +104,6 @@ public class WorldEditPlugin extends JavaPlugin implements TabCompleter {
         // platforms to be worried about... at the current time of writing
         WorldEdit.getInstance().getEventBus().post(new PlatformReadyEvent());
 
-        // Setup the BukkitImplementationTester.
-        BukkitImplementationTester.getImplementation();
-
         // Enable metrics
         new Metrics(this);
     }
@@ -272,7 +269,7 @@ public class WorldEditPlugin extends JavaPlugin implements TabCompleter {
 
         EditSession editSession = WorldEdit.getInstance().getEditSessionFactory()
                 .getEditSession(wePlayer.getWorld(), session.getBlockChangeLimit(), blockBag, wePlayer);
-        editSession.enableQueue();
+        editSession.enableStandardMode();
 
         return editSession;
     }
@@ -288,7 +285,7 @@ public class WorldEditPlugin extends JavaPlugin implements TabCompleter {
         LocalSession session = WorldEdit.getInstance().getSessionManager().get(wePlayer);
 
         session.remember(editSession);
-        editSession.flushQueue();
+        editSession.flushSession();
 
         WorldEdit.getInstance().flushBlockBag(wePlayer, editSession);
     }
