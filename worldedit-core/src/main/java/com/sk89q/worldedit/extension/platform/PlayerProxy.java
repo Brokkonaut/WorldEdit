@@ -83,6 +83,11 @@ class PlayerProxy extends AbstractPlayerActor {
     }
 
     @Override
+    public String getDisplayName() {
+        return basePlayer.getDisplayName();
+    }
+
+    @Override
     public BaseEntity getState() {
         throw new UnsupportedOperationException("Can't getState() on a player");
     }
@@ -90,6 +95,11 @@ class PlayerProxy extends AbstractPlayerActor {
     @Override
     public Location getLocation() {
         return basePlayer.getLocation();
+    }
+
+    @Override
+    public boolean setLocation(Location location) {
+        return basePlayer.setLocation(location);
     }
 
     @Override
@@ -159,7 +169,7 @@ class PlayerProxy extends AbstractPlayerActor {
     }
 
     @Override
-    public void sendFakeBlock(BlockVector3 pos, BlockStateHolder block) {
+    public <B extends BlockStateHolder<B>> void sendFakeBlock(BlockVector3 pos, B block) {
         basePlayer.sendFakeBlock(pos, block);
     }
 }

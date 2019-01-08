@@ -38,8 +38,6 @@ import com.sk89q.worldedit.world.block.BlockStateHolder;
 import com.sk89q.worldedit.world.block.BlockType;
 import com.sk89q.worldedit.world.weather.WeatherType;
 
-import java.util.Vector;
-
 /**
  * Represents a world (dimension).
  */
@@ -96,7 +94,7 @@ public interface World extends Extent {
      * @param notifyAndLight true to to notify and light
      * @return true if the block was successfully set (return value may not be accurate)
      */
-    boolean setBlock(BlockVector3 position, BlockStateHolder block, boolean notifyAndLight) throws WorldEditException;
+    <B extends BlockStateHolder<B>> boolean setBlock(BlockVector3 position, B block, boolean notifyAndLight) throws WorldEditException;
 
     /**
      * Notifies the simulation that the block at the given location has
@@ -245,6 +243,13 @@ public interface World extends Extent {
      * @param duration The duration of the weather
      */
     void setWeather(WeatherType weatherType, long duration);
+
+    /**
+     * Gets the spawn position of this world.
+     *
+     * @return The spawn position
+     */
+    BlockVector3 getSpawnPosition();
 
     @Override
     boolean equals(Object other);

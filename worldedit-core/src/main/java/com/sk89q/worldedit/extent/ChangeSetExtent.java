@@ -59,7 +59,7 @@ public class ChangeSetExtent extends AbstractDelegateExtent {
     }
 
     @Override
-    public boolean setBlock(BlockVector3 location, BlockStateHolder block) throws WorldEditException {
+    public <B extends BlockStateHolder<B>> boolean setBlock(BlockVector3 location, B block) throws WorldEditException {
         BaseBlock previous = getFullBlock(location);
         changeSet.add(new BlockChange(location, previous, block));
         return super.setBlock(location, block);
@@ -108,6 +108,12 @@ public class ChangeSetExtent extends AbstractDelegateExtent {
         @Override
         public Location getLocation() {
             return entity.getLocation();
+        }
+
+        @Override
+        public boolean setLocation(Location location) {
+            // TODO Add a changeset for this.
+            return entity.setLocation(location);
         }
 
         @Override

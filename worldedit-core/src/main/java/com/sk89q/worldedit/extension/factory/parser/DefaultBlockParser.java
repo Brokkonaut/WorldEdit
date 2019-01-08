@@ -17,13 +17,12 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.sk89q.worldedit.extension.factory;
+package com.sk89q.worldedit.extension.factory.parser;
 
 import com.sk89q.worldedit.IncompleteRegionException;
 import com.sk89q.worldedit.NotABlockException;
 import com.sk89q.worldedit.WorldEdit;
 import com.sk89q.worldedit.WorldEditException;
-import com.sk89q.worldedit.world.block.BaseBlock;
 import com.sk89q.worldedit.blocks.MobSpawnerBlock;
 import com.sk89q.worldedit.blocks.SignBlock;
 import com.sk89q.worldedit.blocks.SkullBlock;
@@ -40,10 +39,11 @@ import com.sk89q.worldedit.math.BlockVector3;
 import com.sk89q.worldedit.registry.state.Property;
 import com.sk89q.worldedit.util.HandSide;
 import com.sk89q.worldedit.world.World;
+import com.sk89q.worldedit.world.block.BaseBlock;
 import com.sk89q.worldedit.world.block.BlockState;
-import com.sk89q.worldedit.world.block.BlockStateHolder;
 import com.sk89q.worldedit.world.block.BlockType;
 import com.sk89q.worldedit.world.block.BlockTypes;
+import com.sk89q.worldedit.world.block.FuzzyBlockState;
 import com.sk89q.worldedit.world.registry.LegacyMapper;
 
 import java.util.HashMap;
@@ -52,9 +52,9 @@ import java.util.Map;
 /**
  * Parses block input strings.
  */
-class DefaultBlockParser extends InputParser<BlockStateHolder> {
+public class DefaultBlockParser extends InputParser<BaseBlock> {
 
-    protected DefaultBlockParser(WorldEdit worldEdit) {
+    public DefaultBlockParser(WorldEdit worldEdit) {
         super(worldEdit);
     }
 
@@ -73,13 +73,13 @@ class DefaultBlockParser extends InputParser<BlockStateHolder> {
     }
 
     @Override
-    public BlockStateHolder parseFromInput(String input, ParserContext context)
+    public BaseBlock parseFromInput(String input, ParserContext context)
             throws InputParseException {
         String originalInput = input;
         input = input.replace(";", "|");
         Exception suppressed = null;
         try {
-            BlockStateHolder modified = parseLogic(input, context);
+            BaseBlock modified = parseLogic(input, context);
             if (modified != null) {
                 return modified;
             }
@@ -158,7 +158,8 @@ class DefaultBlockParser extends InputParser<BlockStateHolder> {
                         throw new NoMatchException("Bad state format in " + parseableData);
                     }
 
-                    Property propertyKey = state.getBlockType().getPropertyMap().get(parts[0]);
+                    @SuppressWarnings("unchecked")
+                    Property<Object> propertyKey = (Property<Object>) state.getBlockType().getPropertyMap().get(parts[0]);
                     if (propertyKey == null) {
                         throw new NoMatchException("Unknown state " + parts[0] + " for block " + state.getBlockType().getName());
                     }
@@ -182,7 +183,7 @@ class DefaultBlockParser extends InputParser<BlockStateHolder> {
         return state;
     }
 
-    private BlockStateHolder parseLogic(String input, ParserContext context) throws InputParseException {
+    private BaseBlock parseLogic(String input, ParserContext context) throws InputParseException {
         BlockType blockType = null;
         Map<Property<?>, Object> blockStates = new HashMap<>();
         String[] blockAndExtraData = input.trim().split("\\|");
@@ -268,10 +269,14 @@ class DefaultBlockParser extends InputParser<BlockStateHolder> {
                 // No wildcards allowed => eliminate them. (Start with default state)
                 state = blockType.getDefaultState();
             } else {
-                state = blockType.getDefaultState().toFuzzy();
+                FuzzyBlockState.Builder fuzzyBuilder = FuzzyBlockState.builder();
+                fuzzyBuilder.type(blockType);
                 for (Map.Entry<Property<?>, Object> blockState : blockStates.entrySet()) {
-                    state = state.with((Property) blockState.getKey(), blockState.getValue());
+                    @SuppressWarnings("unchecked")
+                    Property<Object> objProp = (Property<Object>) blockState.getKey();
+                    fuzzyBuilder.withProperty(objProp, blockState.getValue());
                 }
+                state = fuzzyBuilder.build();
             }
 
             state = applyProperties(state, stateProperties);
@@ -321,7 +326,7 @@ class DefaultBlockParser extends InputParser<BlockStateHolder> {
 
             return new SkullBlock(state, type.replace(" ", "_")); // valid MC usernames
         } else {
-            return state;
+            return state.toBaseBlock();
         }
     }
 

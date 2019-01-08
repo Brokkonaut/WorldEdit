@@ -93,6 +93,12 @@ public class ForgePlayer extends AbstractPlayerActor {
     }
 
     @Override
+    public boolean setLocation(Location location) {
+        // TODO
+        return false;
+    }
+
+    @Override
     public com.sk89q.worldedit.world.World getWorld() {
         return ForgeWorldEdit.inst.getWorld(this.player.world);
     }
@@ -172,7 +178,7 @@ public class ForgePlayer extends AbstractPlayerActor {
     }
 
     @Override
-    public void sendFakeBlock(BlockVector3 pos, BlockStateHolder block) {
+    public <B extends BlockStateHolder<B>> void sendFakeBlock(BlockVector3 pos, B block) {
         BlockPos loc = ForgeAdapter.toBlockPos(pos);
         if (block == null) {
             // TODO

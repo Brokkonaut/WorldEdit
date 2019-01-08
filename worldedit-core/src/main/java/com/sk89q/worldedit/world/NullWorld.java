@@ -60,7 +60,7 @@ public class NullWorld extends AbstractWorld {
     }
 
     @Override
-    public boolean setBlock(BlockVector3 position, BlockStateHolder block, boolean notifyAndLight) throws WorldEditException {
+    public <B extends BlockStateHolder<B>> boolean setBlock(BlockVector3 position, B block, boolean notifyAndLight) throws WorldEditException {
         return false;
     }
 
@@ -123,6 +123,11 @@ public class NullWorld extends AbstractWorld {
 
     @Override
     public void setWeather(WeatherType weatherType, long duration) {
+    }
+
+    @Override
+    public BlockVector3 getSpawnPosition() {
+        return BlockVector3.ZERO;
     }
 
     @Override

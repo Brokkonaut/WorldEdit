@@ -84,6 +84,11 @@ public class BukkitPlayer extends AbstractPlayerActor {
     }
 
     @Override
+    public String getDisplayName() {
+        return player.getDisplayName();
+    }
+
+    @Override
     public void giveItem(BaseItemStack itemStack) {
         player.getInventory().addItem(BukkitAdapter.adapt(itemStack));
     }
@@ -195,6 +200,11 @@ public class BukkitPlayer extends AbstractPlayerActor {
                 nativeLocation.getPitch());
     }
 
+    @Override
+    public boolean setLocation(com.sk89q.worldedit.util.Location location) {
+        return player.teleport(BukkitAdapter.adapt(location));
+    }
+
     @Nullable
     @Override
     public <T> T getFacet(Class<? extends T> cls) {
@@ -245,7 +255,7 @@ public class BukkitPlayer extends AbstractPlayerActor {
     }
 
     @Override
-    public void sendFakeBlock(BlockVector3 pos, BlockStateHolder block) {
+    public <B extends BlockStateHolder<B>> void sendFakeBlock(BlockVector3 pos, B block) {
         Location loc = new Location(player.getWorld(), pos.getX(), pos.getY(), pos.getZ());
         if (block == null) {
             player.sendBlockChange(loc, player.getWorld().getBlockAt(loc).getBlockData());

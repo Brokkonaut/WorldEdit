@@ -135,7 +135,7 @@ public abstract class SpongeWorld extends AbstractWorld {
     private static final BlockSnapshot.Builder builder = BlockSnapshot.builder();
 
     @Override
-    public boolean setBlock(BlockVector3 position, BlockStateHolder block, boolean notifyAndLight) throws WorldEditException {
+    public <B extends BlockStateHolder<B>> boolean setBlock(BlockVector3 position, B block, boolean notifyAndLight) throws WorldEditException {
         checkNotNull(position);
         checkNotNull(block);
 
@@ -318,6 +318,11 @@ public abstract class SpongeWorld extends AbstractWorld {
     @Override
     public void setWeather(WeatherType weatherType, long duration) {
         getWorld().setWeather(Sponge.getRegistry().getType(Weather.class, weatherType.getId()).get(), duration);
+    }
+
+    @Override
+    public BlockVector3 getSpawnPosition() {
+        return SpongeAdapter.asBlockVector(getWorld().getSpawnLocation());
     }
 
     /**

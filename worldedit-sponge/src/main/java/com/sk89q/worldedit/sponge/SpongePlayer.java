@@ -80,6 +80,11 @@ public class SpongePlayer extends AbstractPlayerActor {
     }
 
     @Override
+    public String getDisplayName() {
+        return player.getDisplayNameData().displayName().getDirect().map(TextSerializers.LEGACY_FORMATTING_CODE::serialize).orElse(getName());
+    }
+
+    @Override
     public BaseEntity getState() {
         throw new UnsupportedOperationException("Cannot create a state from this object");
     }
@@ -90,6 +95,11 @@ public class SpongePlayer extends AbstractPlayerActor {
         Vector3d entityRot = this.player.getRotation();
 
         return SpongeWorldEdit.inst().getAdapter().adapt(entityLoc, entityRot);
+    }
+
+    @Override
+    public boolean setLocation(Location location) {
+        return player.setLocation(SpongeAdapter.adapt(location));
     }
 
     @Override
@@ -187,7 +197,7 @@ public class SpongePlayer extends AbstractPlayerActor {
     }
 
     @Override
-    public void sendFakeBlock(BlockVector3 pos, BlockStateHolder block) {
+    public <B extends BlockStateHolder<B>> void sendFakeBlock(BlockVector3 pos, B block) {
         org.spongepowered.api.world.Location<World> loc = player.getWorld().getLocation(pos.getX(), pos.getY(), pos.getZ());
         if (block == null) {
             player.sendBlockChange(loc.getBlockPosition(), loc.getBlock());
@@ -244,4 +254,7 @@ public class SpongePlayer extends AbstractPlayerActor {
 
     }
 
+    public Player getPlayer() {
+        return player;
+    }
 }
