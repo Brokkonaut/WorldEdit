@@ -193,7 +193,7 @@ public class SpongeSchematicWriter implements ClipboardWriter {
         for (Entity entity : clipboard.getEntities()) {
             BaseEntity state = entity.getState();
 
-            if (state != null) {
+            if (state != null && state.getType() != null) {
                 Map<String, Tag> values = new HashMap<String, Tag>();
 
                 // Put NBT provided data
