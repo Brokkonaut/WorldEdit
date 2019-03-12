@@ -236,7 +236,7 @@ public class SpongeSchematicReader extends NBTSchematicReader {
                     String id = compound.getString("id");
                     Location location = NBTConversions.toLocation(clipboard, compound.getListTag("Pos"), compound.getListTag("Rotation"));
 
-                    if (!id.isEmpty()) {
+                    if (id != null && !id.isEmpty() && EntityTypes.get(id) != null) {
                         BaseEntity state = new BaseEntity(EntityTypes.get(id), compound);
                         clipboard.createEntity(location, state);
                     }
