@@ -166,21 +166,19 @@ public class ForgeWorld extends AbstractWorld {
         boolean successful = successState != null;
 
         // Create the TileEntity
-        if (successful) {
-            if (block instanceof BaseBlock && ((BaseBlock) block).hasNbtData()) {
-                // Kill the old TileEntity
-                world.removeTileEntity(pos);
-                NBTTagCompound nativeTag = NBTConverter.toNative(((BaseBlock) block).getNbtData());
-                nativeTag.putString("id", ((BaseBlock) block).getNbtId());
-                TileEntityUtils.setTileEntity(world, position, nativeTag);
+        if (successful || old == newState) {
+            if (block instanceof BaseBlock) {
+                CompoundTag tag = ((BaseBlock) block).getNbtData();
+                if (tag != null) {
+                    NBTTagCompound nativeTag = NBTConverter.toNative(tag);
+                    nativeTag.putString("id", ((BaseBlock) block).getNbtId());
+                    TileEntityUtils.setTileEntity(world, position, nativeTag);
+                }
             }
         }
 
-        if (notifyAndLight) {
-            if (!successful) {
-                newState = old;
-            }
-            world.checkLight(pos);
+        if (successful && notifyAndLight) {
+            //world.checkLight(pos);
             world.markAndNotifyBlock(pos, chunk, old, newState, UPDATE | NOTIFY);
         }
 
@@ -189,8 +187,9 @@ public class ForgeWorld extends AbstractWorld {
 
     @Override
     public boolean notifyAndLightBlock(BlockVector3 position, BlockState previousType) throws WorldEditException {
-        // TODO Implement
-        return false;
+        BlockPos pos = new BlockPos(position.getX(), position.getY(), position.getZ());
+        getWorld().notifyBlockUpdate(pos, ForgeAdapter.adapt(previousType), getWorld().getBlockState(pos), 1 | 2);
+        return true;
     }
 
     @Override
@@ -425,6 +424,11 @@ public class ForgeWorld extends AbstractWorld {
             info.setThundering(false);
             info.setClearWeatherTime((int) duration);
         }
+    }
+
+    @Override
+    public int getMaxY() {
+        return getWorld().getHeight() - 1;
     }
 
     @Override

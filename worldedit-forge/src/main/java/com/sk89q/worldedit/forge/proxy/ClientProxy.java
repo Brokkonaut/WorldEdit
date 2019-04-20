@@ -17,31 +17,19 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.sk89q.worldedit.extension.factory.parser.mask;
+package com.sk89q.worldedit.forge.proxy;
 
-import com.google.common.collect.Lists;
-import com.sk89q.worldedit.WorldEdit;
-import com.sk89q.worldedit.extension.input.ParserContext;
-import com.sk89q.worldedit.function.mask.Mask;
-import com.sk89q.worldedit.function.mask.SolidBlockMask;
-import com.sk89q.worldedit.internal.registry.SimpleInputParser;
-import com.sk89q.worldedit.session.request.RequestExtent;
+import com.sk89q.worldedit.forge.KeyHandler;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraftforge.common.MinecraftForge;
 
-import java.util.List;
-
-public class SolidMaskParser extends SimpleInputParser<Mask> {
-
-    public SolidMaskParser(WorldEdit worldEdit) {
-        super(worldEdit);
-    }
+@OnlyIn(Dist.CLIENT)
+public class ClientProxy implements CommonProxy {
 
     @Override
-    public List<String> getMatchedAliases() {
-        return Lists.newArrayList("#solid");
+    public void registerHandlers() {
+        MinecraftForge.EVENT_BUS.register(new KeyHandler());
     }
 
-    @Override
-    public Mask parseFromSimpleInput(String input, ParserContext context) {
-        return new SolidBlockMask(new RequestExtent());
-    }
 }

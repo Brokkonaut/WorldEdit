@@ -75,8 +75,7 @@ public class ClipboardCommands {
         help = "Copy the selection to the clipboard\n" +
                 "Flags:\n" +
                 "  -e will also copy entities\n" +
-                "  -m sets a source mask so that excluded blocks become air\n" +
-                "WARNING: Pasting entities cannot yet be undone!",
+                "  -m sets a source mask so that excluded blocks become air",
         min = 0,
         max = 0
     )
@@ -211,7 +210,7 @@ public class ClipboardCommands {
         max = 1
     )
     @CommandPermissions("worldedit.clipboard.flip")
-    public void flip(Player player, LocalSession session, EditSession editSession,
+    public void flip(Player player, LocalSession session,
                      @Optional(Direction.AIM) @Direction BlockVector3 direction) throws WorldEditException {
         ClipboardHolder holder = session.getClipboard();
         AffineTransform transform = new AffineTransform();
@@ -228,7 +227,7 @@ public class ClipboardCommands {
         max = 0
     )
     @CommandPermissions("worldedit.clipboard.clear")
-    public void clearClipboard(Player player, LocalSession session, EditSession editSession) throws WorldEditException {
+    public void clearClipboard(Player player, LocalSession session) throws WorldEditException {
         session.setClipboard(null);
         player.print("Clipboard cleared.");
     }

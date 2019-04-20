@@ -17,31 +17,29 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.sk89q.worldedit.extension.factory.parser.mask;
+package com.sk89q.worldedit.function.pattern;
 
-import com.google.common.collect.Lists;
-import com.sk89q.worldedit.WorldEdit;
-import com.sk89q.worldedit.extension.input.ParserContext;
-import com.sk89q.worldedit.function.mask.Mask;
-import com.sk89q.worldedit.function.mask.SolidBlockMask;
-import com.sk89q.worldedit.internal.registry.SimpleInputParser;
-import com.sk89q.worldedit.session.request.RequestExtent;
+import com.sk89q.worldedit.math.BlockVector3;
+import com.sk89q.worldedit.world.block.BaseBlock;
+import com.sk89q.worldedit.world.block.BlockState;
+import com.sk89q.worldedit.world.block.FuzzyBlockState;
 
 import java.util.List;
+import java.util.Random;
+import java.util.stream.Collectors;
 
-public class SolidMaskParser extends SimpleInputParser<Mask> {
+public class RandomStatePattern implements Pattern {
 
-    public SolidMaskParser(WorldEdit worldEdit) {
-        super(worldEdit);
+    private final Random rand = new Random();
+    private final List<BaseBlock> blocks;
+
+    public RandomStatePattern(FuzzyBlockState state) {
+        blocks = state.getBlockType().getAllStates().stream().filter(state::equalsFuzzy)
+                .map(BlockState::toBaseBlock).collect(Collectors.toList());
     }
 
     @Override
-    public List<String> getMatchedAliases() {
-        return Lists.newArrayList("#solid");
-    }
-
-    @Override
-    public Mask parseFromSimpleInput(String input, ParserContext context) {
-        return new SolidBlockMask(new RequestExtent());
+    public BaseBlock apply(BlockVector3 position) {
+        return blocks.get(rand.nextInt(blocks.size()));
     }
 }
