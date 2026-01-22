@@ -306,7 +306,7 @@ public class ClipboardCommands {
 
         ClipboardHolder holder = new ClipboardHolder(clipboard);
         // Offset this by half a block to ensure rotations are aligned properly
-        AffineTransform offsetTransform = new AffineTransform().translate(0.5, 0.5, 0.5);
+        AffineTransform offsetTransform = new AffineTransform();
 
         // Now paste it multiple times, rotating each time
         for (int i = 1; i < pasteCount; i++) {
