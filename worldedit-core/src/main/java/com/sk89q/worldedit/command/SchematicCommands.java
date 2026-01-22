@@ -311,6 +311,8 @@ public class SchematicCommands {
     public void list(Actor actor,
                      @ArgFlag(name = 'p', desc = "Page to view.", def = "1")
                          int page,
+                     @ArgFlag(name = 'f', desc = "Filter", def = "")
+                         String filter,
                      @Switch(name = 'd', desc = "Sort by date, oldest first")
                          boolean oldFirst,
                      @Switch(name = 'n', desc = "Sort by date, newest first")
@@ -334,7 +336,7 @@ public class SchematicCommands {
                 ? "//schem list -p %page%" + flag : null;
 
         WorldEditAsyncCommandBuilder.createAndSendMessage(actor,
-                new SchematicListTask(pathComparator, page, pageCommand),
+                new SchematicListTask(pathComparator, page, filter, pageCommand),
                 SubtleFormat.wrap("(Please wait... gathering schematic list.)"));
     }
 
@@ -443,11 +445,13 @@ public class SchematicCommands {
     private static class SchematicListTask implements Callable<Component> {
         private final Comparator<Path> pathComparator;
         private final int page;
+        private final String filter;
         private final String pageCommand;
 
-        SchematicListTask(Comparator<Path> pathComparator, int page, String pageCommand) {
+        SchematicListTask(Comparator<Path> pathComparator, int page, String filter, String pageCommand) {
             this.pathComparator = pathComparator;
             this.page = page;
+            this.filter = filter;
             this.pageCommand = pageCommand;
         }
 
@@ -456,6 +460,9 @@ public class SchematicCommands {
             SchematicsManager schematicsManager = WorldEdit.getInstance().getSchematicsManager();
             // Copy this to a mutable list, we're sorting it below.
             List<Path> fileList = new ArrayList<>(schematicsManager.getSchematicPaths());
+            if (filter != null && !filter.isEmpty()) {
+                fileList.removeIf(f -> !f.toString().contains(filter));
+            }
 
             if (fileList.isEmpty()) {
                 return ErrorFormat.wrap("No schematics found.");
