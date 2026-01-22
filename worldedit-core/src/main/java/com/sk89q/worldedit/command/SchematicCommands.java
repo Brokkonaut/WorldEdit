@@ -332,6 +332,9 @@ public class SchematicCommands {
             pathComparator = Comparator.naturalOrder();
             flag = "";
         }
+        if (filter != null && !filter.isEmpty()) {
+            flag += " -f \"" + filter + "\"";
+        }
         final String pageCommand = actor.isPlayer()
                 ? "//schem list -p %page%" + flag : null;
 
@@ -461,7 +464,8 @@ public class SchematicCommands {
             // Copy this to a mutable list, we're sorting it below.
             List<Path> fileList = new ArrayList<>(schematicsManager.getSchematicPaths());
             if (filter != null && !filter.isEmpty()) {
-                fileList.removeIf(f -> !f.toString().contains(filter));
+                Path schematicsRoot = WorldEdit.getInstance().getSchematicsManager().getRoot();
+                fileList.removeIf(f -> !schematicsRoot.relativize(f).toString().contains(filter));
             }
 
             if (fileList.isEmpty()) {
